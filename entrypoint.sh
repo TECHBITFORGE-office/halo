@@ -9,22 +9,27 @@ CONFIG_FILE="$CONFIG_DIR/playit.toml"
 echo "--- Starting Playit Wrapper for Hugging Face ---"
 
 # 1. Download and Install Playit
-# This runs the exact command you asked for if the binary is missing.
 if [ ! -f "$BINARY_PATH" ]; then
     echo "Binary not found. Downloading..."
-    curl -L -o /usr/local/bin/playit https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-linux-amd64 \
-    && chmod +x /usr/local/bin/playit
+    # Use the official direct download link (more reliable)
+    curl -L -o "$BINARY_PATH" https://playit.gg/downloads/playit-linux-amd64
+    chmod +x "$BINARY_PATH"
     echo "Download complete."
 fi
 
-# 2. Restore Config from Secret (Optional but recommended)
-# If you have a PLAYIT_TOML secret in HF, this restores it.
+# 2. ALWAYS create the config directory
+# This was the missing step causing the crash
+mkdir -p "$CONFIG_DIR"
+
+# 3. Restore Config from Secret (Optional)
 if [ ! -z "$PLAYIT_TOML" ]; then
     echo "Found PLAYIT_TOML secret. Restoring configuration..."
-    mkdir -p "$CONFIG_DIR"
     echo "$PLAYIT_TOML" > "$CONFIG_FILE"
+else
+    echo "No secret found. Playit will generate a new Claim URL."
 fi
 
-# 3. Run Playit
+# 4. Run Playit
 echo "Launching Playit..."
-exec playit
+# usage of the specific path ensures we run what we downloaded
+exec "$BINARY_PATH"
