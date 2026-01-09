@@ -22,7 +22,7 @@ usermod -aG sudo "$SSH_USER"
 
 # Start the Fake Flask API in the background
 echo "Starting Flask API..."
-python3 /app.py &
+python3 /app/app.py &
 
 # Start the SSH Server
 echo "Starting SSH Server..."
